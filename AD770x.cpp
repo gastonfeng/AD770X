@@ -90,15 +90,24 @@ void AD770X::reset() {
     digitalWrite(pinCS, HIGH);
 }
 
-AD770X::AD770X(double vref) {
+AD770X::AD770X(double vref, int _pinMOSI, int _pinMISO, int _pinSPIClock, int _pinCS) {
     VRef = vref;
+    pinMOSI = _pinMOSI;
+    pinMISO = _pinMISO;
+    pinSPIClock = _pinSPIClock;
+    pinCS = _pinCS;
     pinMode(pinMOSI, OUTPUT);
     pinMode(pinMISO, INPUT);
     pinMode(pinSPIClock, OUTPUT);
     pinMode(pinCS, OUTPUT);
 
     digitalWrite(pinCS, HIGH);
+#if SWSPI
+    spi =new SoftwareSPI(pinSPIClock, pinMOSI, pinMISO, pinCS);
+    spi->begin();
+#else
     SPCR = _BV(SPE) | _BV(MSTR) | _BV(CPOL) | _BV(CPHA) | _BV(SPI2X) | _BV(SPR1) | _BV(SPR0);
+#endif
 }
 
 void AD770X::init(byte channel, byte clkDivider, byte polarity, byte gain, byte updRate) {
