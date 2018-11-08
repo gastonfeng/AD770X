@@ -15,8 +15,9 @@
  * Updated 1.1 4/2012
  */
 
-class AD770X {
-public:
+class AD770X
+{
+  public:
     //register selection
     //RS2 RS1 RS0
     static const byte REG_CMM = 0x0;    //communication register 8 bit
@@ -69,7 +70,8 @@ public:
     static const byte CLK_DIV_1 = 0x1;
     static const byte CLK_DIV_2 = 0x2;
 
-    byte spiTransfer(volatile byte data) {
+    byte spiTransfer(volatile byte data)
+    {
 #ifdef SWSPI
         spi->select();
         byte value = spi->transfer(data);
@@ -78,30 +80,33 @@ public:
 #else
         SPDR = data;
 
-        while (!(SPSR & _BV(SPIF)));
+        while (!(SPSR & _BV(SPIF)))
+            ;
 
         return SPDR;
 #endif
     };
 
-    AD770X(double vref, int pinMOSI, int pinMISO, int pinSPIClock, int pinCS);
+    AD770X(double vref, int pinMOSI, int pinMISO, int pinSPIClock, int pinCS,int pinRst,int pinDrdy);
     void setNextOperation(byte reg, byte channel, byte readWrite);
     void writeClockRegister(byte CLKDIS, byte CLKDIV, byte outputUpdateRate);
     void writeSetupRegister(byte operationMode, byte gain, byte unipolar, byte buffered, byte fsync);
-    unsigned int readADResultRaw(byte channel);
+    int readADResultRaw(byte channel);
     double readADResult(byte channel, float refOffset = 0.0);
     void reset();
     bool dataReady(byte channel);
     void init(byte channel);
     void init(byte channel, byte clkDivider, byte polarity, byte gain, byte updRate);
 
-private:
+  private:
     int pinMOSI = 11;     //MOSI
     int pinMISO = 12;     //MISO
     int pinSPIClock = 13; //SCK
     int pinCS = 10;       //CS
+    int _pinRst;
+    int _pinDrdy;
     double VRef;
-    unsigned int readADResult();
+    int readADResult();
 
 #if SWSPI
     SoftwareSPI *spi;
