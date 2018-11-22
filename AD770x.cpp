@@ -67,7 +67,7 @@ int AD770X::readADResult()
 
 int AD770X::readADResultRaw(byte channel)
 {
-    int i = 20;
+    int i = 500;
     while (!dataReady(channel))
     {
         delay(1);
